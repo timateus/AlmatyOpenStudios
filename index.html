@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Almaty Culture Crawl</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
+  <style>
+    /* Import custom font first */
+    @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap');
+    .header {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #000;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 24px;
+      font-size: 18px;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+      z-index: 200;
+    }
+    
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap');
+    body { margin: 0; padding: 0; font-family: 'Rubik', sans-serif; background-color: #f4f4f4; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    .almaty-btn {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 18px;
+      background-color: #000;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      z-index: 100;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+    .marker-label {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 2px 4px;
+      font-size: 10px;
+      color: rgba(0, 0, 0, 0.6);
+      white-space: nowrap;
+      transform: translateY(6px);
+      font-family: 'Rubik', sans-serif;
+      font-weight: 400;
+      letter-spacing: 0;
+      box-shadow: none;
+      text-transform: none;
+    }
+    .org-popup {
+      max-width: 280px;
+      background: #fff;
+      border: 1px solid #000;
+      padding: 16px;
+      font-family: 'Rubik', sans-serif;
+      font-size: 13px;
+      line-height: 1.4;
+      box-shadow: 3px 3px 0 #000;
+    }
+    .org-popup h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .org-popup p { margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="header">ARYQ – фестиваль художественных практик</div>
+<button class="almaty-btn" id="flipButton">Мен Алматыданмын</button>
+<div id="map"></div>
+<script>
+  mapboxgl.accessToken = 'pk.eyJ1IjoidGltYXRldXMiLCJhIjoiY2s2ZmhwMzd2MGNsbjNsbHJjeW9jeTZjeiJ9.nz7s6DdDjUYWUFSpVjFYaw';
+  const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/light-v11',
+    center: [76.9457, 43.2389],
+    zoom: 12
+  });
+
+  let flipped = false;
+  document.getElementById('flipButton').onclick = () => {
+    flipped = !flipped;
+    map.easeTo({ bearing: flipped ? 180 : 0 });
+  };
+
+  const locations = [
+    { coords: [76.917256, 43.264869], title: "Мастерская на Муратбаева 23", description: "Художественная мастерская, по совместительству выставочное пространство, созданное для Aryq Феста." },
+    { coords: [76.94518, 43.25956], title: "Dump Gallery", description: "Независимая арт-платформа, объединяющая художников разных медиумов и практик вокруг тем равенства, деколонизации и свободы самовыражения." },
+    { coords: [76.93054, 43.24028], title: "Egin Art Space", description: "Мультидисциплинарное арт-пространство в Алматы, поддерживающее экспериментальные практики и создающее среду для диалога между художниками, исследователями и горожанами." },
+    { coords: [76.87938, 43.19587], title: "M_gallery", description: "Пространство за Парком Первого Президента 4985 х 2750 х 283 см: выставочное пространство + пространство мастерской + двор. На территории много объектов, которые можно использовать для экспозиции (холодильники, телевизоры, стиральные машинки, коты)." },
+    { coords: [76.96115, 43.24555], title: "P_praktika", description: "Балкон на втором этаже, обзор с улицы, две стеклянные стены в пол 2500 х 2750 х 292 см + пространство для проведения воркшопов, лекций и пр." },
+    { coords: [76.93054, 43.24028], title: "Библиотека trcman", description: "Библиотека trcman — пространство для чтения, исследовательской работы и совместного производства знания. Более 2 тысяч книг по исследованиям культуры и религии, истории, философии и теории, а также кино и медиа. Особое внимание — постколониальная оптика и космологии коренных народов." },
+    { coords: [76.93054, 43.24028], title: "Aqpan Film Lab", description: "Независимая фотолаборатория в Алматы, специализирующаяся на проявке, сканировании и печати пленочных фотографий с выставочным пространством." },
+    { coords: [76.893583, 43.241652], title: "KEREGE Central Asia", description: "Камерная площадка для созидания, сотрудничества и творческих экспериментов. Два этажа и дворик. 1 этаж: ~70 кв.м — проектор, стулья, экран, микшер, колонки, книжный магазинчик. 2 этаж: ~30–35 кв.м — sound lab (диджейское оборудование+колонки), трезвый бар, терраса 30–35 кв.м скамейки, стулья, столики." }
+];
+
+  locations.forEach(loc => {
+    const popup = new mapboxgl.Popup({ offset: 25 })
+      .setHTML(`
+        <div class="org-popup">
+          <h3>${loc.title}</h3>
+          <p>${loc.description}</p>
+        </div>
+      `);
+
+    const marker = new mapboxgl.Marker({ color: '#666' })
+      .setLngLat(loc.coords)
+      .setPopup(popup)
+      .addTo(map);
+
+    const label = document.createElement('div');
+    label.className = 'marker-label';
+    label.innerText = loc.title;
+    new mapboxgl.Marker({ element: label, anchor: 'top' })
+      .setLngLat(loc.coords)
+      .addTo(map);
+  });
+</script>
+</body>
+</html>
